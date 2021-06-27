@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ kubernetes_jellyfin_ingress.name }}
+  namespace: {{ kubernetes_jellyfin_namespace }}
+{% if kubernetes_jellyfin_ingress.annotations %}
+  annotations:
+    {{ kubernetes_jellyfin_ingress.annotations | to_nice_yaml | indent }}
+{% endif %}
+spec:
+{% if kubernetes_jellyfin_ingress.tls %}
+  tls:
+    {{ kubernetes_jellyfin_ingress.tls | to_nice_yaml | indent }}
+{% endif %}
+  rules:
+  - host: {{ kubernetes_jellyfin_ingress.host }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ kubernetes_jellyfin_service }}
+          servicePort: 80

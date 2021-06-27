@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ kubernetes_jellyfin_statefulset }}
+  namespace: {{ kubernetes_jellyfin_namespace }}
+  labels:
+    app: {{ kubernetes_jellyfin_app }}
+{% if kubernetes_jellyfin_statefulset_labels %}
+    {{ kubernetes_jellyfin_statefulset_labels | to_nice_yaml | indent(4) }}
+{% endif %}
+{% if kubernetes_jellyfin_statefulset_annotations %}
+  annotations:
+    {{ kubernetes_jellyfin_statefulset_annotations | to_nice_yaml | indent(4) }}
+{% endif %}
+spec:
+  serviceName: "jellyfin"
+  replicas: {{ kubernetes_jellyfin_replicas }}
+  revisionHistoryLimit: {{ kubernetes_jellyfin_revision_history }}
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ kubernetes_jellyfin_app }}
+  template:
+    metadata:
+      labels:
+        app: {{ kubernetes_jellyfin_app }}
+    spec:
+      containers:
+      - image: {{ kubernetes_jellyfin_image }}
+        imagePullPolicy: Always
+        name: jellyfin
+        resources:
+          {{ kubernetes_jellyfin_resources | to_yaml | indent(10) }}
+        ports:
+        - name: http
+          containerPort: 8096
+        readinessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 600
+          periodSeconds: 10
+        volumeMounts:
+        - mountPath: /config
+          name: jellyfin-config
+          {% if kubernetes_jellyfin_config_volume.subPath is defined %}subPath: {{ kubernetes_jellyfin_config_volume.subPath }}{% endif %}
+
+        - mountPath: /cache
+          name: jellyfin-cache
+          {% if kubernetes_jellyfin_cache_volume.subPath is defined %}subPath: {{ kubernetes_jellyfin_cache_volume.subPath }}{% endif %}
+
+        - mountPath: /config/transcoding-temp
+          name: jellyfin-config-temp
+
+{% for k, v in kubernetes_jellyfin_media_volumes.items() %}
+        - mountPath: /media/{{ k }}
+          name: jellyfin-media-{{ k }}
+          {% if v.subPath is defined %}subPath: {{ v.subPath }}{% endif %}
+
+{% endfor %}
+{% if kubernetes_jellyfin_node_selector|default({}) %}
+      nodeSelector:
+        {{ kubernetes_jellyfin_node_selector | to_yaml | indent(8) }}
+{% endif %}
+      volumes:
+      - {name: jellyfin-config, {{ kubernetes_jellyfin_config_volume.definition | to_yaml }}}
+      - {name: jellyfin-cache, {{ kubernetes_jellyfin_cache_volume.definition | to_yaml }}}
+      - {name: jellyfin-config-temp, emptyDir: {}}
+{% for k, v in kubernetes_jellyfin_media_volumes.items() %}
+      - {name: jellyfin-media-{{ k }}, {{ v.definition | to_yaml }}}
+{% endfor %}
+      restartPolicy: Always

@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ kubernetes_jellyfin_service }}
+  namespace: {{ kubernetes_jellyfin_namespace }}
+spec:
+  selector:
+    app: {{ kubernetes_jellyfin_app }}
+  ports:
+    - port: 80
+      targetPort: http

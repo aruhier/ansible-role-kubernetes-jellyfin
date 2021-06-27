@@ -1,0 +1,38 @@
+---
+
+kubernetes_jellyfin_image: "jellyfin/jellyfin:10.7.6"
+
+kubernetes_jellyfin_namespace: "default"
+kubernetes_jellyfin_statefulset: "jellyfin"
+kubernetes_jellyfin_app: "jellyfin"
+kubernetes_jellyfin_service: "jellyfin"
+
+kubernetes_jellyfin_node_selector: {}
+kubernetes_jellyfin_replicas: 1
+kubernetes_jellyfin_revision_history: 1
+
+kubernetes_jellyfin_statefulset_labels: {}
+kubernetes_jellyfin_statefulset_annotations: {}
+
+kubernetes_jellyfin_resources:
+  limits:
+    memory: "1.5Gi"
+  requests:
+    memory: "512Mi"
+
+kubernetes_jellyfin_media_volumes: {}
+
+kubernetes_jellyfin_config_volume:
+  definition:
+
+kubernetes_jellyfin_cache_volume:
+  definition:
+
+kubernetes_jellyfin_setup_ingress: false
+kubernetes_jellyfin_ingress:
+  name: "jellyfin-ingress"
+  host: "jellyfin.example.com"
+  annotations:
+  tls:
+
+# vim: set ts=2 sw=2:
