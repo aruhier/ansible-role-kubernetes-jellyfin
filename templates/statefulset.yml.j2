@@ -36,15 +36,17 @@ spec:
         - name: http
           containerPort: 8096
         readinessProbe:
-          tcpSocket:
+          httpGet:
+            path: /health
             port: http
           initialDelaySeconds: 10
           periodSeconds: 5
         livenessProbe:
-          tcpSocket:
-            port: http
           initialDelaySeconds: 600
           periodSeconds: 10
+          httpGet:
+            path: /health
+            port: http
         volumeMounts:
         - mountPath: /config
           name: jellyfin-config
