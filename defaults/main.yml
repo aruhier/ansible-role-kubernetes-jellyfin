@@ -30,6 +30,10 @@ kubernetes_jellyfin_config_volume:
 kubernetes_jellyfin_cache_volume:
   definition:
 
+kubernetes_jellyfin_transcoding_volume:
+  definition:
+    emptyDir: {}
+
 kubernetes_jellyfin_setup_ingress: false
 kubernetes_jellyfin_ingress:
   name: "jellyfin-ingress"

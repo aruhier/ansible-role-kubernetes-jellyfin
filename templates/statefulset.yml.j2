@@ -58,6 +58,7 @@ spec:
 
         - mountPath: /config/transcoding-temp
           name: jellyfin-config-temp
+          {% if kubernetes_jellyfin_transcoding_volume.subPath is defined %}subPath: {{ kubernetes_jellyfin_transcoding_volume.subPath }}{% endif %}
 
 {% for k, v in kubernetes_jellyfin_media_volumes.items() %}
         - mountPath: /media/{{ k }}
@@ -72,7 +73,7 @@ spec:
       volumes:
       - {name: jellyfin-config, {{ kubernetes_jellyfin_config_volume.definition | to_yaml }}}
       - {name: jellyfin-cache, {{ kubernetes_jellyfin_cache_volume.definition | to_yaml }}}
-      - {name: jellyfin-config-temp, emptyDir: {}}
+      - {name: jellyfin-config-temp, {{ kubernetes_jellyfin_transcoding_volume.definition | to_yaml }}}
 {% for k, v in kubernetes_jellyfin_media_volumes.items() %}
       - {name: jellyfin-media-{{ k }}, {{ v.definition | to_yaml }}}
 {% endfor %}
